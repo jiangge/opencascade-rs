@@ -117,6 +117,14 @@ pub mod ffi {
             geom_surface_handle: &HandleGeomSurface,
         ) -> UniquePtr<HandleGeomPlane>;
 
+        pub fn new_Geom_Plane_from_axis(
+            axis: &gp_Ax3,
+        ) -> UniquePtr<HandleGeomPlane>;
+
+        pub fn HandleGeomPlane_to_surface(
+            plane: &HandleGeomPlane,
+        ) -> UniquePtr<HandleGeomSurface>;
+
         pub fn IsNull(self: &HandleStandardType) -> bool;
         pub fn IsNull(self: &HandleGeomCurve) -> bool;
         pub fn IsNull(self: &HandleGeomTrimmedCurve) -> bool;
@@ -571,6 +579,18 @@ pub mod ffi {
         pub fn Shape(self: Pin<&mut BRepBuilderAPI_MakeFace>) -> &TopoDS_Shape;
         pub fn Build(self: Pin<&mut BRepBuilderAPI_MakeFace>, progress: &Message_ProgressRange);
         pub fn IsDone(self: &BRepBuilderAPI_MakeFace) -> bool;
+
+        type BRepPrimAPI_MakeHalfSpace;
+
+        #[cxx_name = "construct_unique"]
+        pub fn BRepPrimAPI_MakeHalfSpace_ctor(
+            face: &TopoDS_Face,
+            ref_point: &gp_Pnt,
+        ) -> UniquePtr<BRepPrimAPI_MakeHalfSpace>;
+
+        pub fn BRepPrimAPI_MakeHalfSpace_Shape(
+            mk: &BRepPrimAPI_MakeHalfSpace,
+        ) -> UniquePtr<TopoDS_Shape>;
 
         // BRepAdaptor
         type BRepAdaptor_Curve;

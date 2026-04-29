@@ -30,6 +30,7 @@
 #include <BRepOffsetAPI_MakePipeShell.hxx>
 #include <BRepOffsetAPI_MakeThickSolid.hxx>
 #include <BRepOffsetAPI_ThruSections.hxx>
+#include <BRepPrimAPI_MakeHalfSpace.hxx>
 #include <BRepPrimAPI_MakeBox.hxx>
 #include <BRepPrimAPI_MakeCone.hxx>
 #include <BRepPrimAPI_MakeCylinder.hxx>
@@ -153,6 +154,20 @@ inline void shape_list_append_face(TopTools_ListOfShape &list, const TopoDS_Face
 
 // Geometry
 inline const gp_Pnt &handle_geom_plane_location(const HandleGeomPlane &plane) { return plane->Location(); }
+
+inline std::unique_ptr<HandleGeomPlane> new_Geom_Plane_from_axis(const gp_Ax3 &axis) {
+  return std::unique_ptr<HandleGeomPlane>(
+      new opencascade::handle<Geom_Plane>(new Geom_Plane(gp_Pln(axis))));
+}
+
+inline std::unique_ptr<HandleGeomSurface> HandleGeomPlane_to_surface(const HandleGeomPlane &plane) {
+  return std::unique_ptr<HandleGeomSurface>(
+      new opencascade::handle<Geom_Surface>(plane));
+}
+
+inline std::unique_ptr<TopoDS_Shape> BRepPrimAPI_MakeHalfSpace_Shape(const BRepPrimAPI_MakeHalfSpace &mk) {
+  return std::unique_ptr<TopoDS_Shape>(new TopoDS_Shape(mk.Shape()));
+}
 
 inline std::unique_ptr<HandleGeom_CylindricalSurface> Geom_CylindricalSurface_ctor(const gp_Ax3 &axis, double radius) {
   return std::unique_ptr<HandleGeom_CylindricalSurface>(

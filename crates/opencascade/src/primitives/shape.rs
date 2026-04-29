@@ -762,6 +762,31 @@ impl Shape {
         self.hollow(offset, faces_to_remove)
     }
 
+    /// Split the shape into two halves by a plane defined by `origin` and `normal`.
+    /// Returns `(negative_side, positive_side)`.
+    ///
+    /// The positive side is the half-space in the direction of the plane normal.
+    #[must_use]
+    pub fn split_by_plane(&self, origin: DVec3, normal: DVec3) -> (Self, Self) {
+        let axis2 = make_axis_2(origin, normal);
+        let axis3 = ffi::gp_Ax3_from_gp_Ax2(&axis2);
+        let plane = ffi::new_Geom_Plane_from_axis(&axis3);
+        let surface = ffi::HandleGeomPlane_to_surface(&plane);
+
+        let mk_face = ffi::BRepBuilderAPI_MakeFace_surface(&surface, 0.001);
+        let face: &ffi::TopoDS_Face = mk_face.Face();
+
+        let pos_ref = make_point(origin + normal * 1.0);
+        let half_space = ffi::BRepPrimAPI_MakeHalfSpace_ctor(face, &pos_ref);
+
+        let half_shape = Shape::from_shape(&ffi::BRepPrimAPI_MakeHalfSpace_Shape(&half_space));
+
+        let neg_shape = self.subtract(&half_shape).shape;
+        let pos_shape = self.intersect(&half_shape).shape;
+
+        (neg_shape, pos_shape)
+    }
+
     /// Drill a cylindrical hole along the line defined by point `p`
     /// and direction `dir`, with `radius`.
     #[must_use]
